@@ -26,6 +26,10 @@
     "redirect",
     "forward"
   ],
-  "author": "",
+  "author": {
+    "name": "Aytac Malkoc",
+    "email": "aytacmalkoc@protonmail.com",
+    "url": "https://github.com/aytacmalkoc"
+  },
   "license": "MIT"
 }
