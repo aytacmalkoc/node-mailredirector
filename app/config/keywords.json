@@ -1,0 +1,19 @@
+{
+    "keywordGroups": [
+        {
+            "keywords": [
+                "test",
+                "testing"
+            ],
+            "recipients": [
+                "aytacmalkoc@protonmail.com"
+            ],
+            "description": "Testing Mail"
+        }
+    ],
+    "caseSensitive": false,
+    "matchWholeWord": false,
+    "defaultRecipients": [
+        "default@mail.com"
+    ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "node-mailredirector",
+  "version": "1.0.0",
+  "description": "E-posta yönlendirme uygulaması",
+  "main": "app/index.js",
+  "scripts": {
+    "start": "node app/index.js",
+    "test": "node tests/run-tests.js",
+    "dev": "nodemon app/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "mailparser": "^3.6.5",
+    "node-imap": "^0.9.6",
+    "nodemailer": "^6.9.7",
+    "sqlite3": "^5.1.6",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "email",
+    "imap",
+    "smtp",
+    "redirect",
+    "forward"
+  ],
+  "author": "",
+  "license": "MIT"
+}
