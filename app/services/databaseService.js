@@ -260,6 +260,7 @@ class DatabaseService {
                 resolve({
                     totalProcessed: 0,
                     totalForwarded: 0,
+                    totalSkipped: 0,
                     totalErrors: 0,
                     databaseSize: 0
                 });
@@ -269,6 +270,7 @@ class DatabaseService {
             const queries = [
                 'SELECT COUNT(*) as total FROM processed_emails',
                 'SELECT COUNT(*) as forwarded FROM processed_emails WHERE forwarded = 1',
+                'SELECT COUNT(*) as skipped FROM processed_emails WHERE forwarded = 0 AND error_message IS NULL',
                 'SELECT COUNT(*) as errors FROM processed_emails WHERE error_message IS NOT NULL'
             ];
 
@@ -284,7 +286,8 @@ class DatabaseService {
                     const stats = {
                         totalProcessed: results[0].total,
                         totalForwarded: results[1].forwarded,
-                        totalErrors: results[2].errors,
+                        totalSkipped: results[2].skipped,
+                        totalErrors: results[3].errors,
                         databaseSize: 0
                     };
 

@@ -3,8 +3,16 @@ require('dotenv').config();
 const ImapListener = require('./services/imapListener');
 const KeywordChecker = require('./services/keywordChecker');
 const SmtpSender = require('./services/smtpSender');
+const ReportService = require('./services/reportService');
+const SchedulerService = require('./services/schedulerService');
+const ApiServer = require('./api/server');
+const ConfigManager = require('./utils/configManager');
 const { logInfo, logError, logWarn, logDebug, logForwardedEmail, logSystemStatus } = require('./utils/logger');
 const { MESSAGES, ERROR_MESSAGES } = require('./constants/messages');
+
+// Load encrypted configuration if available
+const configManager = new ConfigManager();
+configManager.loadConfig();
 
 // Global error handler for uncaught exceptions
 process.on('uncaughtException', (error) => {
@@ -33,6 +41,9 @@ class MailRedirector {
         this.imapListener = null;
         this.keywordChecker = null;
         this.smtpSender = null;
+        this.reportService = null;
+        this.schedulerService = null;
+        this.apiServer = null;
         this.isRunning = false;
         this.stats = {
             totalEmails: 0,
@@ -59,15 +70,39 @@ class MailRedirector {
             // Setup email processing callback
             this.setupEmailProcessing();
 
-            // Start IMAP listening
+            // Start IMAP listening (this initializes database service)
             this.imapListener.connect();
+
+            // Initialize report service (after IMAP listener initializes database)
+            // Wait a bit for database initialization
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            if (this.imapListener && this.imapListener.databaseService) {
+                this.reportService = new ReportService(
+                    this.imapListener.databaseService,
+                    this.smtpSender
+                );
+                
+                // Initialize scheduler service
+                this.schedulerService = new SchedulerService(this.reportService);
+                this.schedulerService.start();
+                logInfo('Report and scheduler services started');
+            }
+
+            // Start API server if enabled
+            if (process.env.API_ENABLED !== 'false') {
+                this.apiServer = new ApiServer(this);
+                await this.apiServer.start();
+            }
 
             this.isRunning = true;
             this.stats.startTime = new Date().toISOString();
 
             logSystemStatus(MESSAGES.APP_STARTED_SUCCESS, {
                 startTime: this.stats.startTime,
-                checkInterval: process.env.CHECK_INTERVAL || 30000
+                checkInterval: process.env.CHECK_INTERVAL || 30000,
+                apiEnabled: process.env.API_ENABLED !== 'false',
+                apiPort: process.env.API_PORT || 3000
             });
 
             // Setup signal handlers for graceful shutdown
@@ -276,6 +311,16 @@ class MailRedirector {
             logInfo(MESSAGES.APP_STOPPING);
 
             this.isRunning = false;
+
+            // Stop scheduler service
+            if (this.schedulerService) {
+                this.schedulerService.stop();
+            }
+
+            // Stop API server
+            if (this.apiServer) {
+                await this.apiServer.stop();
+            }
 
             if (this.imapListener) {
                 await this.imapListener.disconnect();
