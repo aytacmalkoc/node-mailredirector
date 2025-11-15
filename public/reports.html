@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Mail Redirector</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">📧 Mail Redirector</h1>
+            <ul class="nav-menu">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/keywords.html">Keywords</a></li>
+                <li><a href="/emails.html">Emails</a></li>
+                <li><a href="/logs.html">Logs</a></li>
+                <li><a href="/reports.html" class="active">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2>Raporlar</h2>
+            <p class="subtitle">Rapor oluştur ve görüntüle</p>
+        </div>
+
+        <div class="card">
+            <h3>Hızlı Rapor Oluştur</h3>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generateDailyReport()">Günlük Rapor</button>
+                <button class="btn btn-primary" onclick="generateWeeklyReport()">Haftalık Rapor</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Özel Tarih Aralığı Raporu</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Başlangıç Tarihi</label>
+                    <input type="date" id="fromDate" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bitiş Tarihi</label>
+                    <input type="date" id="toDate" class="form-input">
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="generateCustomReport()">Rapor Oluştur</button>
+        </div>
+
+        <div class="card">
+            <h3>Rapor Sonuçları</h3>
+            <div id="reportResults">
+                <div class="loading-spinner">Rapor oluşturmak için yukarıdaki butonları kullanın</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Zamanlanmış Raporlar</h3>
+            <div id="schedulerStatus">
+                <div class="loading-spinner">Yükleniyor...</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/reports.js"></script>
+</body>
+</html>
+

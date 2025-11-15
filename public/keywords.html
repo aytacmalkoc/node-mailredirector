@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keywords - Mail Redirector</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">📧 Mail Redirector</h1>
+            <ul class="nav-menu">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/keywords.html" class="active">Keywords</a></li>
+                <li><a href="/emails.html">Emails</a></li>
+                <li><a href="/logs.html">Logs</a></li>
+                <li><a href="/reports.html">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2>Anahtar Kelimeler</h2>
+            <p class="subtitle">Anahtar kelime gruplarını görüntüle ve yönet</p>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <h3>Keyword Grupları</h3>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="showAddGroupForm()">+ Yeni Grup Ekle</button>
+                    <button class="btn btn-secondary" onclick="reloadKeywords()">Yenile</button>
+                </div>
+            </div>
+            <div id="keywordsContainer">
+                <div class="loading-spinner">Yükleniyor...</div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Group Modal -->
+        <div id="groupModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 id="modalTitle">Yeni Keyword Grubu</h3>
+                    <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
+                <form id="groupForm" onsubmit="saveGroup(event)">
+                    <div class="form-group">
+                        <label class="form-label">Açıklama</label>
+                        <input type="text" id="groupDescription" class="form-input" placeholder="Grup açıklaması" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Anahtar Kelimeler (her satıra bir kelime)</label>
+                        <textarea id="groupKeywords" class="form-textarea" rows="5" placeholder="test&#10;urgent&#10;important" required></textarea>
+                        <small style="color: var(--text-secondary);">Regex için: {"pattern": "/regex/", "regex": true} formatını kullanın</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Alıcılar (her satıra bir e-posta)</label>
+                        <textarea id="groupRecipients" class="form-textarea" rows="3" placeholder="user1@example.com&#10;user2@example.com" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Gönderen Filtresi (opsiyonel)</label>
+                        <input type="text" id="groupFromFilter" class="form-input" placeholder="@example.com veya regex">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Konu Filtresi (opsiyonel)</label>
+                        <input type="text" id="groupSubjectFilter" class="form-input" placeholder="Konu içinde geçmesi gereken kelime veya regex">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Başlangıç Saati (opsiyonel)</label>
+                            <input type="time" id="groupTimeStart" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bitiş Saati (opsiyonel)</label>
+                            <input type="time" id="groupTimeEnd" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Haftanın Günleri (opsiyonel)</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.25rem;">
+                                <input type="checkbox" value="0" class="day-checkbox"> Pazar
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem;">
+                                <input type="checkbox" value="1" class="day-checkbox"> Pazartesi
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem;">
+                                <input type="checkbox" value="2" class="day-checkbox"> Salı
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem;">
+                                <input type="checkbox" value="3" class="day-checkbox"> Çarşamba
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem;">
+                                <input type="checkbox" value="4" class="day-checkbox"> Perşembe
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem;">
+                                <input type="checkbox" value="5" class="day-checkbox"> Cuma
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.25rem;">
+                                <input type="checkbox" value="6" class="day-checkbox"> Cumartesi
+                            </label>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-primary">Kaydet</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">İptal</button>
+                    </div>
+                    <input type="hidden" id="groupIndex" value="">
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Varsayılan Alıcılar</h3>
+            <div id="defaultRecipients">
+                <div class="loading-spinner">Yükleniyor...</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/keywords.js"></script>
+</body>
+</html>
+

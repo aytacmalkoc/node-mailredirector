@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mail Redirector - Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">📧 Mail Redirector</h1>
+            <ul class="nav-menu">
+                <li><a href="/" class="active">Dashboard</a></li>
+                <li><a href="/keywords.html">Keywords</a></li>
+                <li><a href="/emails.html">Emails</a></li>
+                <li><a href="/logs.html">Logs</a></li>
+                <li><a href="/reports.html">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2>Dashboard</h2>
+            <p class="subtitle">Sistem durumu ve genel istatistikler</p>
+        </div>
+
+        <!-- Status Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalProcessed">-</div>
+                    <div class="stat-label">Toplam İşlenen</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalForwarded">-</div>
+                    <div class="stat-label">Yönlendirilen</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏭️</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalSkipped">-</div>
+                    <div class="stat-label">Atlanan</div>
+                </div>
+            </div>
+            <div class="stat-card error">
+                <div class="stat-icon">❌</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalErrors">-</div>
+                    <div class="stat-label">Hatalar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="card">
+            <h3>🔌 Sistem Durumu</h3>
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label">IMAP Bağlantısı:</span>
+                    <span class="status-value" id="imapStatus">
+                        <span class="status-indicator loading"></span> Kontrol ediliyor...
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">SMTP Bağlantısı:</span>
+                    <span class="status-value" id="smtpStatus">
+                        <span class="status-indicator loading"></span> Kontrol ediliyor...
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Veritabanı:</span>
+                    <span class="status-value" id="dbStatus">
+                        <span class="status-indicator loading"></span> Kontrol ediliyor...
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Anahtar Kelimeler:</span>
+                    <span class="status-value" id="keywordsStatus">
+                        <span class="status-indicator loading"></span> Kontrol ediliyor...
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <h3>📋 Son Aktiviteler</h3>
+            <div id="recentActivity" class="activity-list">
+                <div class="loading-spinner">Yükleniyor...</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <h3>⚡ Hızlı İşlemler</h3>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generateDailyReport()">Günlük Rapor Oluştur</button>
+                <button class="btn btn-secondary" onclick="reloadConfig()">Yapılandırmayı Yenile</button>
+                <button class="btn btn-info" onclick="window.location.href='/logs.html'">Logları Görüntüle</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>
+

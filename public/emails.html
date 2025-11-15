@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emails - Mail Redirector</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">📧 Mail Redirector</h1>
+            <ul class="nav-menu">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/keywords.html">Keywords</a></li>
+                <li><a href="/emails.html" class="active">Emails</a></li>
+                <li><a href="/logs.html">Logs</a></li>
+                <li><a href="/reports.html">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2>İşlenen E-postalar</h2>
+            <p class="subtitle">Yönlendirilen ve atlanan e-postaların geçmişi</p>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <input type="text" id="searchInput" class="form-input" placeholder="Ara..." 
+                           style="width: 300px;" onkeyup="handleSearch()">
+                    <select id="filterSelect" class="form-select" onchange="loadEmails()" style="width: 200px;">
+                        <option value="all">Tümü</option>
+                        <option value="forwarded">Yönlendirilen</option>
+                        <option value="skipped">Atlanan</option>
+                        <option value="error">Hatalı</option>
+                    </select>
+                </div>
+                <div>
+                    <span id="totalCount" style="color: var(--text-secondary);">-</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Gönderen</th>
+                            <th>Konu</th>
+                            <th>Durum</th>
+                            <th>Alıcılar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="emailsTableBody">
+                        <tr>
+                            <td colspan="5" class="loading-spinner">Yükleniyor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <div>
+                    <button class="btn btn-secondary" onclick="previousPage()" id="prevBtn" disabled>Önceki</button>
+                    <span style="margin: 0 1rem;">Sayfa <span id="currentPage">1</span></span>
+                    <button class="btn btn-secondary" onclick="nextPage()" id="nextBtn">Sonraki</button>
+                </div>
+                <div>
+                    <select id="pageSize" class="form-select" onchange="loadEmails()" style="width: 150px;">
+                        <option value="25">25 / sayfa</option>
+                        <option value="50" selected>50 / sayfa</option>
+                        <option value="100">100 / sayfa</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/emails.js"></script>
+</body>
+</html>
+

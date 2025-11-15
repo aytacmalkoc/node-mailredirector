@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs - Mail Redirector</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-title">📧 Mail Redirector</h1>
+            <ul class="nav-menu">
+                <li><a href="/">Dashboard</a></li>
+                <li><a href="/keywords.html">Keywords</a></li>
+                <li><a href="/emails.html">Emails</a></li>
+                <li><a href="/logs.html" class="active">Logs</a></li>
+                <li><a href="/reports.html">Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h2>Log Görüntüleyici</h2>
+            <p class="subtitle">Sistem loglarını görüntüle ve filtrele</p>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                <select id="logFileSelect" class="form-select" onchange="loadLogs()" style="width: 250px;">
+                    <option value="">Tüm log dosyaları</option>
+                </select>
+                <select id="levelSelect" class="form-select" onchange="loadLogs()" style="width: 150px;">
+                    <option value="all">Tüm seviyeler</option>
+                    <option value="error">Error</option>
+                    <option value="warn">Warning</option>
+                    <option value="info">Info</option>
+                    <option value="debug">Debug</option>
+                </select>
+                <input type="text" id="searchInput" class="form-input" placeholder="Ara..." 
+                       style="width: 300px;" onkeyup="handleSearch()">
+                <button class="btn btn-secondary" onclick="loadLogs()">Yenile</button>
+            </div>
+            <div style="max-height: 600px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; background-color: var(--bg-color); font-family: 'Courier New', monospace; font-size: 0.875rem;">
+                <div id="logsContainer">
+                    <div class="loading-spinner">Yükleniyor...</div>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <div>
+                    <button class="btn btn-secondary" onclick="previousPage()" id="prevBtn" disabled>Önceki</button>
+                    <span style="margin: 0 1rem;">Sayfa <span id="currentPage">1</span></span>
+                    <button class="btn btn-secondary" onclick="nextPage()" id="nextBtn">Sonraki</button>
+                </div>
+                <div>
+                    <span id="totalCount" style="color: var(--text-secondary);">-</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/logs.js"></script>
+</body>
+</html>
+
