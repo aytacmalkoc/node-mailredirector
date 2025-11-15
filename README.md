@@ -359,6 +359,50 @@ Reports include:
 - Top recipients
 - Error statistics
 
+## Advanced Features
+
+### Time-based Rules
+Configure keyword groups to only match during specific days and times:
+
+```json
+{
+  "daysOfWeek": [1, 2, 3, 4, 5],  // Monday to Friday
+  "timeRange": {
+    "start": "09:00",
+    "end": "17:00"
+  }
+}
+```
+
+### Regex Patterns
+Use regex for advanced keyword matching:
+
+```json
+{
+  "keywords": [
+    {"pattern": "/invoice|bill|payment/i", "regex": true}
+  ]
+}
+```
+
+### Sender and Subject Filters
+Filter emails by sender or subject:
+
+```json
+{
+  "fromFilter": "@company.com",
+  "subjectFilter": "URGENT"
+}
+```
+
+### Spam Folder Monitoring
+Monitor spam folder in addition to inbox:
+
+```bash
+MONITOR_SPAM=true
+SPAM_FOLDER_NAME=Junk
+```
+
 ## Development
 
 ```bash
