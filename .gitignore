@@ -90,7 +90,7 @@ dist
 
 # Gatsby files
 .cache/
-public
+# public - Web paneli için gerekli, git'e eklenecek
 
 # Storybook build outputs
 .out
