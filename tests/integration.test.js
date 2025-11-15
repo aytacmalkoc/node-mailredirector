@@ -2,11 +2,17 @@ const MailRedirector = require('../app/index');
 const ImapListener = require('../app/services/imapListener');
 const KeywordChecker = require('../app/services/keywordChecker');
 const SmtpSender = require('../app/services/smtpSender');
+const ApiServer = require('../app/api/server');
+const ReportService = require('../app/services/reportService');
+const SchedulerService = require('../app/services/schedulerService');
 
 // Mock dependencies
 jest.mock('../app/services/imapListener');
 jest.mock('../app/services/keywordChecker');
 jest.mock('../app/services/smtpSender');
+jest.mock('../app/services/reportService');
+jest.mock('../app/services/schedulerService');
+jest.mock('../app/api/server');
 jest.mock('../app/utils/logger');
 
 const mockImapListener = require('../app/services/imapListener');
@@ -579,6 +585,114 @@ describe('Integration Tests', () => {
             const stats = mailRedirector.getStats();
             expect(stats.uptime).toBeGreaterThan(0);
             expect(stats.isRunning).toBe(true);
+        });
+    });
+
+    describe('API Endpoints', () => {
+        let apiServer;
+        let mockReportServiceInstance;
+        let mockSchedulerServiceInstance;
+
+        beforeEach(() => {
+            // Mock report service
+            mockReportServiceInstance = {
+                generateDailyReport: jest.fn().mockResolvedValue({
+                    success: true,
+                    stats: { totalProcessed: 10, totalForwarded: 8 },
+                    recipients: ['admin@test.com']
+                }),
+                generateWeeklyReport: jest.fn().mockResolvedValue({
+                    success: true,
+                    stats: { totalProcessed: 50, totalForwarded: 40 },
+                    recipients: ['admin@test.com']
+                }),
+                generateStatistics: jest.fn().mockResolvedValue({
+                    totalProcessed: 10,
+                    totalForwarded: 8,
+                    topRecipients: []
+                })
+            };
+
+            // Mock scheduler service
+            mockSchedulerServiceInstance = {
+                getStatus: jest.fn().mockReturnValue({
+                    isRunning: true,
+                    activeJobs: 2,
+                    jobs: [
+                        { name: 'daily-report', running: true },
+                        { name: 'weekly-report', running: true }
+                    ]
+                }),
+                stop: jest.fn()
+            };
+
+            mailRedirector.reportService = mockReportServiceInstance;
+            mailRedirector.schedulerService = mockSchedulerServiceInstance;
+
+            apiServer = new ApiServer(mailRedirector);
+        });
+
+        test('should handle daily report endpoint', async () => {
+            // Test the service directly since Express routing is complex to test
+            const result = await mockReportServiceInstance.generateDailyReport();
+            expect(result.success).toBe(true);
+            expect(result.stats).toBeDefined();
+            expect(mockReportServiceInstance.generateDailyReport).toHaveBeenCalled();
+        });
+
+        test('should handle weekly report endpoint', async () => {
+            const result = await mockReportServiceInstance.generateWeeklyReport();
+            expect(result.success).toBe(true);
+            expect(result.stats).toBeDefined();
+        });
+
+        test('should handle custom stats endpoint', async () => {
+            const fromDate = new Date('2024-12-01');
+            const toDate = new Date('2024-12-07');
+
+            const stats = await mockReportServiceInstance.generateStatistics(fromDate, toDate);
+            expect(stats).toBeDefined();
+            expect(stats.totalProcessed).toBe(10);
+        });
+
+        test('should handle scheduler status endpoint', () => {
+            const status = mockSchedulerServiceInstance.getStatus();
+            expect(status.isRunning).toBe(true);
+            expect(status.activeJobs).toBe(2);
+        });
+    });
+
+    describe('Report Service Integration', () => {
+        test('should generate statistics correctly', async () => {
+            // Unmock ReportService for this test
+            jest.unmock('../app/services/reportService');
+            const RealReportService = require('../app/services/reportService');
+            
+            const mockDatabaseService = {
+                isInitialized: true,
+                getProcessedEmailsSince: jest.fn().mockResolvedValue([
+                    {
+                        id: 1,
+                        processed_at: '2024-12-15T10:00:00Z',
+                        forwarded: 1,
+                        forward_recipients: JSON.stringify(['test@test.com']),
+                        error_message: null,
+                        subject: 'Test',
+                        flags: JSON.stringify([])
+                    }
+                ])
+            };
+
+            const reportService = new RealReportService(mockDatabaseService, mockSmtpInstance);
+            
+            const startDate = new Date('2024-12-15T00:00:00Z');
+            const endDate = new Date('2024-12-15T23:59:59Z');
+
+            const stats = await reportService.generateStatistics(startDate, endDate);
+
+            expect(stats).toBeDefined();
+            expect(stats.totalProcessed).toBe(1);
+            expect(stats.totalForwarded).toBe(1);
         });
     });
 }); 

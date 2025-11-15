@@ -6,6 +6,12 @@ process.env.LOG_LEVEL = 'error'; // Reduce log noise during tests
 process.env.CHECK_INTERVAL = '1000';
 process.env.MAX_RETRY_ATTEMPTS = '1';
 process.env.RETRY_DELAY = '100';
+process.env.SMTP_MAX_RETRY_ATTEMPTS = '1'; // Disable SMTP retries in tests
+process.env.SMTP_BASE_RETRY_DELAY = '10'; // Minimal delay for tests
+process.env.SMTP_MAX_RETRY_DELAY = '50';
+process.env.API_ENABLED = 'false'; // Disable API in tests
+process.env.REPORT_DAILY_ENABLED = 'false'; // Disable reports in tests
+process.env.REPORT_WEEKLY_ENABLED = 'false';
 
 // Mock environment variables for testing
 process.env.IMAP_HOST = 'test-imap.example.com';

@@ -151,6 +151,9 @@ function checkTestFiles() {
         'smtpSender.test.js',
         'logger.test.js',
         'mailRedirector.test.js',
+        'logService.test.js',
+        'reportService.test.js',
+        'schedulerService.test.js',
         'integration.test.js'
     ];
 
