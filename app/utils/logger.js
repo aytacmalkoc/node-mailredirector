@@ -1,4 +1,5 @@
 const winston = require('winston');
+const DailyRotateFile = require('winston-daily-rotate-file');
 const path = require('path');
 const fs = require('fs');
 const { MESSAGES, ERROR_MESSAGES } = require('../constants/messages');
@@ -146,26 +147,37 @@ try {
         })
     );
 
+    // Daily rotate file configuration
+    const dailyRotateFileConfig = {
+        datePattern: 'YYYY-MM-DD',
+        maxSize: process.env.LOG_MAX_SIZE || '20m',
+        maxFiles: process.env.LOG_MAX_FILES || '14d', // Keep logs for 14 days
+        zippedArchive: process.env.LOG_ZIP_ARCHIVE === 'true', // Compress old logs
+        format: fileFormat
+    };
+
     logger = winston.createLogger({
         level: process.env.LOG_LEVEL || 'info',
         format: fileFormat,
         defaultMeta: { service: 'mail-redirector' },
         transports: [
-            // Error log file
-            new winston.transports.File({
-                filename: path.join(logDir, 'errors.log'),
+            // Error log file with daily rotation
+            new DailyRotateFile({
+                filename: path.join(logDir, 'errors-%DATE%.log'),
                 level: 'error',
-                maxsize: 5242880, // 5MB
-                maxFiles: 5,
-                format: fileFormat
+                ...dailyRotateFileConfig
             }),
-            // System log file (info, warn, error)
-            new winston.transports.File({
-                filename: path.join(logDir, 'system.log'),
+            // System log file (info, warn, error) with daily rotation
+            new DailyRotateFile({
+                filename: path.join(logDir, 'system-%DATE%.log'),
                 level: 'info',
-                maxsize: 5242880, // 5MB
-                maxFiles: 5,
-                format: fileFormat
+                ...dailyRotateFileConfig
+            }),
+            // Forwarded emails log with daily rotation
+            new DailyRotateFile({
+                filename: path.join(logDir, 'forwarded-%DATE%.log'),
+                level: 'info',
+                ...dailyRotateFileConfig
             })
         ]
     });
@@ -203,10 +215,27 @@ function logForwardedEmail(emailData, recipients, keywordMatches) {
     };
 
     try {
-        fs.appendFileSync(path.join(logDir, 'forwarded.log'),
-            `[${timestamp}] FORWARDED: ${emailData.subject} | From: ${emailData.from} | To: ${recipients.join(', ')} | Keywords: ${keywordMatches.join(', ')} | Size: ${emailData.size} bytes\n`);
+        // Use winston logger for forwarded emails (will go to forwarded-%DATE%.log)
+        logger.info('FORWARDED EMAIL', {
+            messageId: emailData.messageId,
+            uid: emailData.uid,
+            from: emailData.from,
+            subject: emailData.subject,
+            recipients: recipients,
+            keywordMatches: keywordMatches,
+            hasAttachments: emailData.attachments.length > 0,
+            size: emailData.size,
+            timestamp: timestamp
+        });
     } catch (error) {
         console.error(MESSAGES.FORWARDED_LOG_WRITE_FAILED + ':', error.message);
+        // Fallback to file append if logger fails
+        try {
+            fs.appendFileSync(path.join(logDir, 'forwarded.log'),
+                `[${timestamp}] FORWARDED: ${emailData.subject} | From: ${emailData.from} | To: ${recipients.join(', ')} | Keywords: ${keywordMatches.join(', ')} | Size: ${emailData.size} bytes\n`);
+        } catch (fallbackError) {
+            console.error('Fallback log write also failed:', fallbackError.message);
+        }
     }
 
     // Add brief info to system log as well
